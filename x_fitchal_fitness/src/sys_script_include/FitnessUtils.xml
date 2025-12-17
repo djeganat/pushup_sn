@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_script_include">
+    <sys_script_include action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <active>true</active>
+        <api_name>x_fitchal_fitness.FitnessUtils</api_name>
+        <caller_access/>
+        <client_callable>false</client_callable>
+        <description>Utility functions for fitness tracking and calculations</description>
+        <name>FitnessUtils</name>
+        <script><![CDATA[var FitnessUtils = Class.create();
+FitnessUtils.prototype = {
+    initialize: function() {
+    },
+
+    /**
+     * Calculate XP earned based on activity type and duration
+     * @param {string} activityType - Type of activity (pushup, run, etc)
+     * @param {number} count - Number of reps or duration
+     * @return {number} XP earned
+     */
+    calculateXP: function(activityType, count) {
+        var xpMultipliers = {
+            'pushup': 1,
+            'pullup': 2,
+            'run': 0.5,
+            'plank': 0.3
+        };
+
+        var multiplier = xpMultipliers[activityType] || 1;
+        return Math.floor(count * multiplier);
+    },
+
+    /**
+     * Check if user has achieved a new streak milestone
+     * @param {number} currentStreak - Current streak count
+     * @return {boolean} Whether a milestone was achieved
+     */
+    checkStreakMilestone: function(currentStreak) {
+        var milestones = [7, 14, 30, 60, 90, 180, 365];
+        return milestones.indexOf(currentStreak) > -1;
+    },
+
+    type: 'FitnessUtils'
+};]]></script>
+        <sys_class_name>sys_script_include</sys_class_name>
+        <sys_created_by>admin</sys_created_by>
+        <sys_id>6789012345abcdef6789012345abcdef</sys_id>
+        <sys_name>FitnessUtils</sys_name>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_policy/>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_script_include_FitnessUtils</sys_update_name>
+    </sys_script_include>
+</record_update>

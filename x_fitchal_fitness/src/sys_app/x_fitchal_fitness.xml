@@ -1,0 +1,22 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_app">
+    <sys_app action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <enforce_license>none</enforce_license>
+        <hide_on_splash_screen>false</hide_on_splash_screen>
+        <licensable>false</licensable>
+        <license_model>use_with_subscription</license_model>
+        <name>FitChallenge</name>
+        <private>false</private>
+        <runtime_access_tracking>permissive</runtime_access_tracking>
+        <scope>x_fitchal_fitness</scope>
+        <scoped_administration>false</scoped_administration>
+        <short_description>Gamified fitness tracking application with XP, badges, streaks, and challenges</short_description>
+        <sys_class_name>sys_app</sys_class_name>
+        <sys_id>a1b2c3d4e5f6789012345678abcdef01</sys_id>
+        <template/>
+        <vendor/>
+        <vendor_prefix>x_fitchal</vendor_prefix>
+        <version>1.0.0</version>
+    </sys_app>
+</record_update>
