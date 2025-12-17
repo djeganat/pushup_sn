@@ -98,14 +98,16 @@ This repository uses a **staged deployment approach**, building the application 
 
 ### Files Structure
 ```
-block-01-app-shell/
-├── PROMPT.md              # Block requirements and instructions
-├── VALIDATE.js            # Validation script for ServiceNow
-└── src/
-    ├── sn_source_control.properties
-    └── sys_app/
-        └── x_fitchal_fitness.xml
+pushup_sn_repo/
+├── sn_source_control.properties    # Source control config (at root for Studio)
+├── sys_app/
+│   └── x_fitchal_fitness.xml       # Application manifest (at root for Studio)
+└── block-01-app-shell/             # Reference documentation
+    ├── PROMPT.md                    # Block requirements and instructions
+    └── VALIDATE.js                  # Validation script for ServiceNow
 ```
+
+**Note**: ServiceNow files are at the repository root for Studio import compatibility.
 
 ## 🔗 Block Dependencies
 
