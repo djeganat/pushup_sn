@@ -1,0 +1,29 @@
+# ServiceNow
+*.log
+temp/
+.DS_Store
+
+# Node modules (if any build tools are used)
+node_modules/
+npm-debug.log*
+
+# IDE
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# OS
+Thumbs.db
+.DS_Store
+
+# Build artifacts
+dist/
+build/
+*.zip
+
+# Sensitive information
+*.env
+.env.local
+credentials.json
