@@ -28,7 +28,7 @@ This repository uses a **staged deployment approach**, building the application 
 |-------|-----------|--------|-------|-------------|
 | 01 | App Shell | ✅ READY | 2 | Application foundation and scope |
 | 02 | Tables | ✅ READY | 6 | Core database tables |
-| 03 | Fields | 🔜 PENDING | 54 | Table columns and relationships |
+| 03 | Fields | ✅ READY | 48 | Table columns and relationships |
 | 04 | Choices | 🔜 PENDING | 7 | Dropdown options and enums |
 | 05 | Script Includes | 🔜 PENDING | 4 | Reusable server-side code |
 | 06 | Business Rules | 🔜 PENDING | 3 | Automated record processing |
@@ -47,7 +47,7 @@ This repository uses a **staged deployment approach**, building the application 
 | 19 | Profile Page | 🔜 PENDING | 1 | User fitness profile |
 | 20 | Seed Data | 🔜 PENDING | 0 | Sample data for testing |
 
-## 🚀 Quick Start - Block 02
+## 🚀 Quick Start - Block 03
 
 ### Prerequisites
 - ServiceNow instance with admin access
@@ -62,61 +62,61 @@ This repository uses a **staged deployment approach**, building the application 
    cd pushup_sn
    ```
 
-2. **Deploy Block 02: Database Tables**
+2. **Deploy Block 03: Database Fields**
 
    **Option A: Studio Import (Recommended)**
-   - Copy `block-02-tables/src/` contents to your ServiceNow Git repo
+   - Copy `block-03-fields/src/` contents to your ServiceNow Git repo
    - In ServiceNow Studio: File → Import From Source Control
 
-   **Option B: Manual Table Creation**
+   **Option B: Manual Field Creation**
    - Navigate to: System Definition → Tables
-   - Create each of the 6 tables listed in `block-02-tables/PROMPT.md`
-   - Ensure all tables use scope: `x_fitchal_fitness`
+   - For each table, create fields as listed in `block-03-fields/PROMPT.md`
+   - Ensure all fields use scope: `x_fitchal_fitness`
 
 3. **Validate the deployment**
    - Open ServiceNow: System Definition → Scripts - Background
-   - Copy and run the validation script from `block-02-tables/VALIDATE.js`
-   - Verify all checks show ✅ PASS (all 6 tables created)
+   - Copy and run the validation script from `block-03-fields/VALIDATE.js`
+   - Verify all checks show ✅ PASS (all 48 fields created)
 
 4. **Check validation results**
-   - Expected output: All 6 tables exist with correct labels
+   - Expected output: All 48 fields exist across 6 tables
    - If any test fails, review the error messages and fix issues before proceeding
 
-## 📋 Block 02 Details
+## 📋 Block 03 Details
 
 ### What Gets Created
-- **6 Database Tables** (all in `sys_db_object/` directory)
-  - `x_fitchal_fitness_activity` - Fitness Activity tracking
-  - `x_fitchal_fitness_user_profile` - User fitness profiles with XP and streaks
-  - `x_fitchal_fitness_badge` - Badge/achievement definitions
-  - `x_fitchal_fitness_user_badge` - User earned badges (many-to-many)
-  - `x_fitchal_fitness_challenge` - Challenge definitions
-  - `x_fitchal_fitness_participant` - Challenge participants (many-to-many)
+- **48 Custom Database Fields** (all in `sys_dictionary/` directory)
+  - **Activity fields (10)**: user, activity_type, reps_count, duration, distance, calories_burned, xp_earned, activity_date, notes, detection_method
+  - **User Profile fields (10)**: user, total_xp, level, current_streak, longest_streak, last_activity_date, total_activities, total_calories, rank, avatar_url
+  - **Badge fields (7)**: name, description, badge_type, requirement_value, icon_url, xp_reward, rarity
+  - **User Badge fields (4)**: user, badge, earned_date, progress
+  - **Challenge fields (11)**: name, description, challenge_type, start_date, end_date, goal_type, goal_value, status, created_by, winner, winner_team
+  - **Participant fields (6)**: challenge, user, team_name, current_progress, rank, joined_date
 
-**Note**: Tables are created with only default system fields. Custom fields will be added in Block 03.
+**Note**: Choice field dropdown values will be added in Block 04.
 
 ### Files Structure
 ```
 pushup_sn_repo/
-└── block-02-tables/
+└── block-03-fields/
     ├── PROMPT.md                        # Block requirements and instructions
     ├── VALIDATE.js                      # Validation script for ServiceNow
     └── src/
-        └── sys_db_object/
-            ├── x_fitchal_fitness_activity.xml
-            ├── x_fitchal_fitness_user_profile.xml
-            ├── x_fitchal_fitness_badge.xml
-            ├── x_fitchal_fitness_user_badge.xml
-            ├── x_fitchal_fitness_challenge.xml
-            └── x_fitchal_fitness_participant.xml
+        └── sys_dictionary/
+            ├── x_fitchal_fitness_activity_*.xml (10 files)
+            ├── x_fitchal_fitness_user_profile_*.xml (10 files)
+            ├── x_fitchal_fitness_badge_*.xml (7 files)
+            ├── x_fitchal_fitness_user_badge_*.xml (4 files)
+            ├── x_fitchal_fitness_challenge_*.xml (11 files)
+            └── x_fitchal_fitness_participant_*.xml (6 files)
 ```
 
 ## 🔗 Block Dependencies
 
 ```
 Block 1 (App Shell)
-    └── Block 2 (Tables) ← YOU ARE HERE
-            └── Block 3 (Fields)
+    └── Block 2 (Tables)
+            └── Block 3 (Fields) ← YOU ARE HERE
                     └── Block 4 (Choices)
                             ├── Block 5 (Script Includes)
                             │       ├── Block 6 (Business Rules)
@@ -200,6 +200,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Status**: Block 02 Complete ✅ | Ready for Block 03 🔜
+**Status**: Block 03 Complete ✅ | Ready for Block 04 🔜
 
-**Total Files**: 8 of 105 | **Progress**: 7.6%
+**Total Files**: 58 of 105 | **Progress**: 55.2%
