@@ -27,7 +27,7 @@ This repository uses a **staged deployment approach**, building the application 
 | Block | Component | Status | Files | Description |
 |-------|-----------|--------|-------|-------------|
 | 01 | App Shell | ✅ READY | 2 | Application foundation and scope |
-| 02 | Tables | 🔜 PENDING | 6 | Core database tables |
+| 02 | Tables | ✅ READY | 6 | Core database tables |
 | 03 | Fields | 🔜 PENDING | 54 | Table columns and relationships |
 | 04 | Choices | 🔜 PENDING | 7 | Dropdown options and enums |
 | 05 | Script Includes | 🔜 PENDING | 4 | Reusable server-side code |
@@ -47,7 +47,7 @@ This repository uses a **staged deployment approach**, building the application 
 | 19 | Profile Page | 🔜 PENDING | 1 | User fitness profile |
 | 20 | Seed Data | 🔜 PENDING | 0 | Sample data for testing |
 
-## 🚀 Quick Start - Block 01
+## 🚀 Quick Start - Block 02
 
 ### Prerequisites
 - ServiceNow instance with admin access
@@ -62,58 +62,60 @@ This repository uses a **staged deployment approach**, building the application 
    cd pushup_sn
    ```
 
-2. **Deploy Block 01: App Shell**
-   
+2. **Deploy Block 02: Database Tables**
+
    **Option A: Studio Import (Recommended)**
-   - Copy `block-01-app-shell/src/` contents to your ServiceNow Git repo
+   - Copy `block-02-tables/src/` contents to your ServiceNow Git repo
    - In ServiceNow Studio: File → Import From Source Control
-   
-   **Option B: Manual Creation**
-   - Navigate to: System Applications → Studio
-   - Click "Create Application"
-   - Use scope: `x_fitchal_fitness`
-   - Name: `FitChallenge`
-   - Version: `1.0.0`
+
+   **Option B: Manual Table Creation**
+   - Navigate to: System Definition → Tables
+   - Create each of the 6 tables listed in `block-02-tables/PROMPT.md`
+   - Ensure all tables use scope: `x_fitchal_fitness`
 
 3. **Validate the deployment**
    - Open ServiceNow: System Definition → Scripts - Background
-   - Copy and run the validation script from `block-01-app-shell/VALIDATE.js`
-   - Verify all checks show ✅ PASS
+   - Copy and run the validation script from `block-02-tables/VALIDATE.js`
+   - Verify all checks show ✅ PASS (all 6 tables created)
 
 4. **Check validation results**
-   - Expected output: All tests passing
+   - Expected output: All 6 tables exist with correct labels
    - If any test fails, review the error messages and fix issues before proceeding
 
-## 📋 Block 01 Details
+## 📋 Block 02 Details
 
 ### What Gets Created
-- **Source Control Configuration** (`sn_source_control.properties`)
-  - Defines application scope
-  - Sets version number
+- **6 Database Tables** (all in `sys_db_object/` directory)
+  - `x_fitchal_fitness_activity` - Fitness Activity tracking
+  - `x_fitchal_fitness_user_profile` - User fitness profiles with XP and streaks
+  - `x_fitchal_fitness_badge` - Badge/achievement definitions
+  - `x_fitchal_fitness_user_badge` - User earned badges (many-to-many)
+  - `x_fitchal_fitness_challenge` - Challenge definitions
+  - `x_fitchal_fitness_participant` - Challenge participants (many-to-many)
 
-- **Application Manifest** (`sys_app/x_fitchal_fitness.xml`)
-  - Creates the FitChallenge scoped application
-  - Establishes the application namespace
-  - Sets up licensing and access controls
+**Note**: Tables are created with only default system fields. Custom fields will be added in Block 03.
 
 ### Files Structure
 ```
 pushup_sn_repo/
-├── sn_source_control.properties    # Source control config (at root for Studio)
-├── sys_app/
-│   └── x_fitchal_fitness.xml       # Application manifest (at root for Studio)
-└── block-01-app-shell/             # Reference documentation
-    ├── PROMPT.md                    # Block requirements and instructions
-    └── VALIDATE.js                  # Validation script for ServiceNow
+└── block-02-tables/
+    ├── PROMPT.md                        # Block requirements and instructions
+    ├── VALIDATE.js                      # Validation script for ServiceNow
+    └── src/
+        └── sys_db_object/
+            ├── x_fitchal_fitness_activity.xml
+            ├── x_fitchal_fitness_user_profile.xml
+            ├── x_fitchal_fitness_badge.xml
+            ├── x_fitchal_fitness_user_badge.xml
+            ├── x_fitchal_fitness_challenge.xml
+            └── x_fitchal_fitness_participant.xml
 ```
-
-**Note**: ServiceNow files are at the repository root for Studio import compatibility.
 
 ## 🔗 Block Dependencies
 
 ```
-Block 1 (App Shell) ← YOU ARE HERE
-    └── Block 2 (Tables)
+Block 1 (App Shell)
+    └── Block 2 (Tables) ← YOU ARE HERE
             └── Block 3 (Fields)
                     └── Block 4 (Choices)
                             ├── Block 5 (Script Includes)
@@ -198,6 +200,6 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Status**: Block 01 Complete ✅ | Ready for Block 02 🔜
+**Status**: Block 02 Complete ✅ | Ready for Block 03 🔜
 
-**Total Files**: 2 of 105 | **Estimated Completion**: 2-3 hours
+**Total Files**: 8 of 105 | **Progress**: 7.6%
