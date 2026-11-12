@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_user_role">
+    <sys_user_role action="INSERT_OR_UPDATE">
+        <description>FitChallenge administrator: manage badges and challenges.</description>
+        <elevated_privilege>false</elevated_privilege>
+        <name>x_fitchal_fitness.admin</name>
+        <suffix>admin</suffix>
+        <sys_class_name>sys_user_role</sys_class_name>
+        <sys_id>ee60ed8e36e40548de02b16b7d8c0685</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_user_role_x_fitchal_fitness.admin</sys_update_name>
+    </sys_user_role>
+</record_update>

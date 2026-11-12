@@ -1,0 +1,44 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json</consumes>
+        <http_method>GET</http_method>
+        <name>List my activities</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    var limit = Math.min(parseInt(request.queryParams.limit, 10) || 20, 100);
+    var out = [];
+    var a = new GlideRecord(FitnessUtils.T.ACTIVITY);
+    a.addQuery('user', gs.getUserID());
+    if (request.queryParams.activity_type) a.addQuery('activity_type', String(request.queryParams.activity_type));
+    a.orderByDesc('activity_date');
+    a.setLimit(limit);
+    a.query();
+    while (a.next()) {
+        out.push({
+            sys_id: a.getUniqueValue(),
+            activity_type: a.getValue('activity_type'),
+            reps_count: parseInt(a.getValue('reps_count'), 10) || 0,
+            duration: parseInt(a.getValue('duration'), 10) || 0,
+            distance: parseFloat(a.getValue('distance')) || 0,
+            calories_burned: parseInt(a.getValue('calories_burned'), 10) || 0,
+            xp_earned: parseInt(a.getValue('xp_earned'), 10) || 0,
+            detection_method: a.getValue('detection_method'),
+            activity_date: a.getValue('activity_date')
+        });
+    }
+    return { activities: out };
+})(request, response);
+]]></operation_script>
+        <produces>application/json</produces>
+        <relative_path>/activity</relative_path>
+        <requires_acl_authorization>false</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <web_service_definition>ec3bcfcdaf33e200087102595d9908b6</web_service_definition>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_id>d33e7e4b0570d65bd2882eb394196fb2</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_ws_operation_rest_get_activities</sys_update_name>
+    </sys_ws_operation>
+</record_update>

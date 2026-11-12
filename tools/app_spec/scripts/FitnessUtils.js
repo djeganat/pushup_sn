@@ -1,0 +1,365 @@
+var FitnessUtils = Class.create();
+
+FitnessUtils.T = {
+    ACTIVITY: 'x_fitchal_fitness_activity',
+    PROFILE: 'x_fitchal_fitness_user_profile',
+    BADGE: 'x_fitchal_fitness_badge',
+    USER_BADGE: 'x_fitchal_fitness_user_badge',
+    CHALLENGE: 'x_fitchal_fitness_challenge',
+    PARTICIPANT: 'x_fitchal_fitness_participant'
+};
+
+/**
+ * XP rules per activity type.
+ *  field - which activity field is the scoring amount
+ *  xp    - XP per unit of that field
+ *  kcal  - estimated calories per unit (used when calories_burned is empty)
+ */
+FitnessUtils.RULES = {
+    pushup: { field: 'reps_count', xp: 1,   kcal: 0.4 },
+    pullup: { field: 'reps_count', xp: 2,   kcal: 1 },
+    run:    { field: 'distance',   xp: 50,  kcal: 60 },
+    plank:  { field: 'duration',   xp: 0.3, kcal: 0.08 }
+};
+
+FitnessUtils.prototype = {
+    initialize: function() {
+        this.maxDailyXP = this._intProp('max_daily_xp', 1000);
+        this.xpPerLevel = this._intProp('xp_per_level', 500);
+        this.maxReps = this._intProp('max_reps_per_activity', 500);
+        this.minRepMs = this._intProp('min_rep_duration_ms', 300);
+    },
+
+    /* ---------- scoring ---------- */
+
+    /** XP for an amount of a given activity type, before the daily cap. */
+    calculateXP: function(activityType, amount) {
+        var rule = FitnessUtils.RULES[activityType];
+        var n = parseFloat(amount) || 0;
+        if (!rule || n <= 0) return 0;
+        return Math.floor(n * rule.xp);
+    },
+
+    /** Scoring amount for an activity record (reps, km or seconds depending on type). */
+    getAmount: function(activityGr) {
+        var rule = FitnessUtils.RULES[activityGr.getValue('activity_type')];
+        if (!rule) return 0;
+        return parseFloat(activityGr.getValue(rule.field)) || 0;
+    },
+
+    estimateCalories: function(activityGr) {
+        var rule = FitnessUtils.RULES[activityGr.getValue('activity_type')];
+        if (!rule) return 0;
+        return Math.round(this.getAmount(activityGr) * rule.kcal);
+    },
+
+    /** Returns an error message, or '' when the activity is acceptable. */
+    validateActivity: function(activityGr) {
+        var type = activityGr.getValue('activity_type');
+        var rule = FitnessUtils.RULES[type];
+        if (!rule) return 'Unknown activity type: ' + type;
+
+        var amount = this.getAmount(activityGr);
+        if (amount <= 0) return 'Activity "' + type + '" requires a positive ' + rule.field + '.';
+
+        if (rule.field === 'reps_count') {
+            if (amount !== Math.floor(amount)) return 'reps_count must be a whole number.';
+            if (amount > this.maxReps) return 'reps_count ' + amount + ' exceeds the per-activity limit of ' + this.maxReps + '.';
+            // Sensor/camera plausibility: reps cannot be faster than min_rep_duration_ms each.
+            var method = activityGr.getValue('detection_method');
+            var duration = parseFloat(activityGr.getValue('duration')) || 0;
+            if (method !== 'manual' && duration > 0 && (duration * 1000) / amount < this.minRepMs)
+                return 'Rep pace is implausible (' + amount + ' reps in ' + duration + 's).';
+        }
+        return '';
+    },
+
+    /** XP earned today (user-local day) by a user, optionally excluding one activity. */
+    getXPEarnedToday: function(userId, excludeId) {
+        var range = this._todayRangeUTC();
+        var ga = new GlideAggregate(FitnessUtils.T.ACTIVITY);
+        ga.addQuery('user', userId);
+        ga.addQuery('activity_date', '>=', range.start);
+        ga.addQuery('activity_date', '<', range.end);
+        if (excludeId) ga.addQuery('sys_id', '!=', excludeId);
+        ga.addAggregate('SUM', 'xp_earned');
+        ga.setGroup(false);
+        ga.query();
+        return ga.next() ? (parseInt(ga.getAggregate('SUM', 'xp_earned'), 10) || 0) : 0;
+    },
+
+    /** Final XP for a new activity, applying the daily cap. */
+    scoreActivity: function(activityGr) {
+        var raw = this.calculateXP(activityGr.getValue('activity_type'), this.getAmount(activityGr));
+        var remaining = Math.max(0, this.maxDailyXP - this.getXPEarnedToday(activityGr.getValue('user'), activityGr.getUniqueValue()));
+        return Math.min(raw, remaining);
+    },
+
+    levelForXP: function(xp) {
+        return Math.floor((parseInt(xp, 10) || 0) / this.xpPerLevel) + 1;
+    },
+
+    /* ---------- profile, streaks, badges ---------- */
+
+    getOrCreateProfile: function(userId) {
+        var p = new GlideRecord(FitnessUtils.T.PROFILE);
+        if (p.get('user', userId)) return p;
+        p.initialize();
+        p.setValue('user', userId);
+        p.setValue('total_xp', 0);
+        p.setValue('level', 1);
+        p.setValue('current_streak', 0);
+        p.setValue('longest_streak', 0);
+        p.setValue('total_activities', 0);
+        p.setValue('total_calories', 0);
+        p.insert();
+        return p;
+    },
+
+    /** Applies a newly inserted activity to the user's profile. Returns newly earned badge names. */
+    applyActivityToProfile: function(activityGr) {
+        var p = this.getOrCreateProfile(activityGr.getValue('user'));
+        p.setValue('total_activities', this._int(p, 'total_activities') + 1);
+        p.setValue('total_calories', this._int(p, 'total_calories') + (parseInt(activityGr.getValue('calories_burned'), 10) || 0));
+        p.setValue('total_xp', this._int(p, 'total_xp') + (parseInt(activityGr.getValue('xp_earned'), 10) || 0));
+        this.updateStreak(p, activityGr.activity_date.getGlideObject().getLocalDate().getValue());
+        p.setValue('level', this.levelForXP(p.getValue('total_xp')));
+        p.update();
+        return this.awardBadges(p);
+    },
+
+    /** Updates current/longest streak given the local date (yyyy-MM-dd) of an activity. */
+    updateStreak: function(profileGr, activityDate) {
+        var last = profileGr.getValue('last_activity_date');
+        var streak = this._int(profileGr, 'current_streak');
+        if (!last) {
+            streak = 1;
+        } else {
+            var diff = this._daysBetween(last, activityDate);
+            if (diff < 0) return; // back-dated activity: streak unaffected
+            if (diff === 1) streak += 1;
+            else if (diff > 1) streak = 1;
+            else if (streak === 0) streak = 1;
+        }
+        profileGr.setValue('current_streak', streak);
+        profileGr.setValue('longest_streak', Math.max(streak, this._int(profileGr, 'longest_streak')));
+        profileGr.setValue('last_activity_date', activityDate);
+    },
+
+    checkStreakMilestone: function(currentStreak) {
+        return [7, 14, 30, 60, 90, 180, 365].indexOf(parseInt(currentStreak, 10)) > -1;
+    },
+
+    getTotalReps: function(userId, activityType) {
+        var ga = new GlideAggregate(FitnessUtils.T.ACTIVITY);
+        ga.addQuery('user', userId);
+        ga.addQuery('activity_type', activityType || 'pushup');
+        ga.addAggregate('SUM', 'reps_count');
+        ga.setGroup(false);
+        ga.query();
+        return ga.next() ? (parseInt(ga.getAggregate('SUM', 'reps_count'), 10) || 0) : 0;
+    },
+
+    /**
+     * Awards any badges the user now qualifies for.
+     *  streak      -> longest_streak >= requirement_value (days)
+     *  milestone   -> total pushup reps >= requirement_value
+     *  achievement -> total_activities >= requirement_value
+     */
+    awardBadges: function(profileGr) {
+        var userId = profileGr.getValue('user');
+        var owned = {};
+        var ub = new GlideRecord(FitnessUtils.T.USER_BADGE);
+        ub.addQuery('user', userId);
+        ub.query();
+        while (ub.next()) owned[ub.getValue('badge')] = true;
+
+        var metrics = {
+            streak: this._int(profileGr, 'longest_streak'),
+            milestone: null, // computed lazily
+            achievement: this._int(profileGr, 'total_activities')
+        };
+        var earned = [];
+        var bonus = 0;
+        var b = new GlideRecord(FitnessUtils.T.BADGE);
+        b.orderBy('requirement_value');
+        b.query();
+        while (b.next()) {
+            if (owned[b.getUniqueValue()]) continue;
+            var type = b.getValue('badge_type');
+            if (type === 'milestone' && metrics.milestone === null) metrics.milestone = this.getTotalReps(userId, 'pushup');
+            if (metrics[type] === undefined || metrics[type] < this._int(b, 'requirement_value')) continue;
+            var nb = new GlideRecord(FitnessUtils.T.USER_BADGE);
+            nb.initialize();
+            nb.setValue('user', userId);
+            nb.setValue('badge', b.getUniqueValue());
+            nb.setValue('earned_date', new GlideDateTime());
+            nb.setValue('progress', 100);
+            nb.insert();
+            bonus += this._int(b, 'xp_reward');
+            earned.push(b.getValue('name'));
+        }
+        if (bonus > 0) { // badge rewards are a bonus and are not subject to the daily cap
+            profileGr.setValue('total_xp', this._int(profileGr, 'total_xp') + bonus);
+            profileGr.setValue('level', this.levelForXP(profileGr.getValue('total_xp')));
+            profileGr.update();
+        }
+        return earned;
+    },
+
+    /* ---------- challenges & leaderboard ---------- */
+
+    /** Adds a new activity's contribution to every active challenge the user is in. */
+    updateChallengeProgress: function(activityGr) {
+        var day = activityGr.activity_date.getGlideObject().getLocalDate().getValue();
+        var touched = {};
+        var part = new GlideRecord(FitnessUtils.T.PARTICIPANT);
+        part.addQuery('user', activityGr.getValue('user'));
+        part.addQuery('challenge.status', 'active');
+        part.addQuery('challenge.start_date', '<=', day);
+        part.addQuery('challenge.end_date', '>=', day);
+        part.query();
+        while (part.next()) {
+            var delta = this._goalContribution(part.challenge.goal_type + '', activityGr);
+            if (delta <= 0) continue;
+            part.setValue('current_progress', this._int(part, 'current_progress') + delta);
+            part.update();
+            touched[part.getValue('challenge')] = true;
+        }
+        for (var id in touched) this.evaluateChallenge(id);
+    },
+
+    _goalContribution: function(goalType, a) {
+        if (goalType === 'reps') return parseInt(a.getValue('reps_count'), 10) || 0;
+        if (goalType === 'distance') return Math.round(parseFloat(a.getValue('distance')) || 0);
+        if (goalType === 'calories') return parseInt(a.getValue('calories_burned'), 10) || 0;
+        if (goalType === 'activities') return 1;
+        return 0;
+    },
+
+    /** Re-ranks participants and completes the challenge when a 1v1 or team goal is reached. */
+    evaluateChallenge: function(challengeId, forceClose) {
+        var ch = new GlideRecord(FitnessUtils.T.CHALLENGE);
+        if (!ch.get(challengeId)) return;
+        var goal = this._int(ch, 'goal_value');
+        var type = ch.getValue('challenge_type');
+        var teams = {};
+        var top = null;
+        var rank = 0;
+        var part = new GlideRecord(FitnessUtils.T.PARTICIPANT);
+        part.addQuery('challenge', challengeId);
+        part.orderByDesc('current_progress');
+        part.orderBy('joined_date');
+        part.query();
+        while (part.next()) {
+            rank++;
+            if (this._int(part, 'rank') !== rank) { part.setValue('rank', rank); part.update(); }
+            if (!top) top = { user: part.getValue('user'), progress: this._int(part, 'current_progress') };
+            var t = part.getValue('team_name');
+            if (t) teams[t] = (teams[t] || 0) + this._int(part, 'current_progress');
+        }
+        if (ch.getValue('status') !== 'active') return;
+
+        var done = false;
+        if (type === 'team') {
+            var best = null;
+            for (var name in teams) if (!best || teams[name] > teams[best]) best = name;
+            if (best && (forceClose || teams[best] >= goal)) { ch.setValue('winner_team', best); done = true; }
+        } else if (type === '1v1') {
+            if (top && (forceClose || top.progress >= goal)) { ch.setValue('winner', top.user); done = true; }
+        } else if (forceClose) { // solo: everyone who reaches the goal "wins"; close on end date
+            if (top && top.progress >= goal) ch.setValue('winner', top.user);
+            done = true;
+        }
+        if (forceClose) done = true;
+        if (done) { ch.setValue('status', 'completed'); ch.update(); }
+    },
+
+    /** Recomputes the global leaderboard rank (by total XP) on every profile. */
+    recalculateRanks: function() {
+        var rank = 0;
+        var p = new GlideRecord(FitnessUtils.T.PROFILE);
+        p.orderByDesc('total_xp');
+        p.orderBy('sys_created_on');
+        p.query();
+        while (p.next()) {
+            rank++;
+            if (this._int(p, 'rank') !== rank) {
+                p.setValue('rank', rank);
+                p.setWorkflow(false);
+                p.update();
+            }
+        }
+        return rank;
+    },
+
+    /** Closes active challenges whose end date has passed. */
+    closeExpiredChallenges: function() {
+        var today = new GlideDateTime().getLocalDate().getValue();
+        var ch = new GlideRecord(FitnessUtils.T.CHALLENGE);
+        ch.addQuery('status', 'active');
+        ch.addQuery('end_date', '<', today);
+        ch.query();
+        var n = 0;
+        while (ch.next()) { this.evaluateChallenge(ch.getUniqueValue(), true); n++; }
+        return n;
+    },
+
+    /** Zeroes current_streak for users with no activity yesterday or today. */
+    resetBrokenStreaks: function() {
+        var yesterday = new GlideDateTime();
+        yesterday.addDaysLocalTime(-1);
+        var p = new GlideRecord(FitnessUtils.T.PROFILE);
+        p.addQuery('current_streak', '>', 0);
+        p.addQuery('last_activity_date', '<', yesterday.getLocalDate().getValue());
+        p.query();
+        var n = 0;
+        while (p.next()) { p.setValue('current_streak', 0); p.setWorkflow(false); p.update(); n++; }
+        return n;
+    },
+
+    /** Admin utility: deletes all FitChallenge data for a user (participations, badges, activities, profile). */
+    purgeUserData: function(userId) {
+        if (!gs.hasRole('x_fitchal_fitness.admin')) throw new Error('purgeUserData requires x_fitchal_fitness.admin');
+        var tables = [FitnessUtils.T.PARTICIPANT, FitnessUtils.T.USER_BADGE, FitnessUtils.T.ACTIVITY, FitnessUtils.T.PROFILE];
+        var counts = {};
+        for (var i = 0; i < tables.length; i++) {
+            var g = new GlideRecord(tables[i]);
+            g.addQuery('user', userId);
+            g.query();
+            counts[tables[i]] = g.getRowCount();
+            g.setWorkflow(false);
+            g.deleteMultiple();
+        }
+        return counts;
+    },
+
+    /* ---------- helpers ---------- */
+
+    _intProp: function(suffix, dflt) {
+        var v = parseInt(gs.getProperty('x_fitchal_fitness.' + suffix, String(dflt)), 10);
+        return isNaN(v) ? dflt : v;
+    },
+
+    _int: function(gr, field) {
+        return parseInt(gr.getValue(field), 10) || 0;
+    },
+
+    _daysBetween: function(fromDate, toDate) {
+        var a = new GlideDateTime(fromDate + ' 12:00:00').getNumericValue();
+        var b = new GlideDateTime(toDate + ' 12:00:00').getNumericValue();
+        return Math.round((b - a) / 86400000);
+    },
+
+    /** UTC start/end of the current user's local day, for querying date/time fields. */
+    _todayRangeUTC: function() {
+        var now = new GlideDateTime();
+        var start = new GlideDateTime();
+        start.setDisplayValueInternal(now.getLocalDate().getValue() + ' 00:00:00');
+        var end = new GlideDateTime(start);
+        end.addDaysUTC(1);
+        return { start: start.getValue(), end: end.getValue() };
+    },
+
+    type: 'FitnessUtils'
+};

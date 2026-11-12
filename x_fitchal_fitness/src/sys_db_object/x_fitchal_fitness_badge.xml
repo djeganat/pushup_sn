@@ -1,0 +1,21 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_db_object">
+    <sys_db_object action="INSERT_OR_UPDATE">
+        <access>public</access>
+        <caller_access/>
+        <create_access>true</create_access>
+        <create_access_controls>false</create_access_controls>
+        <delete_access>false</delete_access>
+        <is_extendable>false</is_extendable>
+        <label>Badge</label>
+        <name>x_fitchal_fitness_badge</name>
+        <read_access>true</read_access>
+        <update_access>true</update_access>
+        <ws_access>true</ws_access>
+        <sys_class_name>sys_db_object</sys_class_name>
+        <sys_id>b6e3a1c4f0a14f1d9e2b7c5d8a9f0e11</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_db_object_x_fitchal_fitness_badge</sys_update_name>
+    </sys_db_object>
+</record_update>

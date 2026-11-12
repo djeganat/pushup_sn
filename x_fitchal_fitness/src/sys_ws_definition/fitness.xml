@@ -1,0 +1,19 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_ws_definition">
+    <sys_ws_definition action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json</consumes>
+        <doc_link/>
+        <enforce_acl/>
+        <is_versioned>false</is_versioned>
+        <name>FitChallenge API</name>
+        <namespace>x_fitchal_fitness</namespace>
+        <produces>application/json</produces>
+        <service_id>fitness</service_id>
+        <sys_class_name>sys_ws_definition</sys_class_name>
+        <sys_id>ec3bcfcdaf33e200087102595d9908b6</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_ws_definition_fitness</sys_update_name>
+    </sys_ws_definition>
+</record_update>
