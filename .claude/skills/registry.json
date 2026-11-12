@@ -1,0 +1,22 @@
+{
+  "last_updated": "2026-07-05T00:00:00.000Z",
+  "_comment": "Skills synced in full to <project>/.claude/skills/ at session start (syncSkillsToProject in claude-session.ts). `skills` lists skills physically bundled in resources/skills/ (currently just aiux-tailwind-vision-spec) — every other skill is discovered dynamically from each externalPacks entry's installed npm package (its entire skills/ dir gets fetched into ~/Library/Application Support/AIUX Lab/skills/<name>/skills/), so it never needs to be hand-listed here.",
+  "skills": [
+    {
+      "name": "aiux-tailwind-vision-spec",
+      "description": "Deterministic mapping of AIUX visual patterns to DaisyUI aiux-* component classes and design tokens.",
+      "path": "resources/skills/aiux-tailwind-vision-spec",
+      "format": "skills-2.0"
+    }
+  ],
+  "externalPacks": [
+    {
+      "name": "aiux",
+      "package": "@servicenow/agent-pack-aiux"
+    },
+    {
+      "name": "horizon-design-knowledge",
+      "package": "@servicenow/agent-pack-horizon-design-knowledge"
+    }
+  ]
+}
