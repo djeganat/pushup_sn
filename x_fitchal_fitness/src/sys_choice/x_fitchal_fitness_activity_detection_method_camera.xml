@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_choice">
+    <sys_choice action="INSERT_OR_UPDATE">
+        <element>detection_method</element>
+        <inactive>false</inactive>
+        <label>Camera (AI)</label>
+        <language>en</language>
+        <name>x_fitchal_fitness_activity</name>
+        <sequence>20</sequence>
+        <value>camera</value>
+        <sys_class_name>sys_choice</sys_class_name>
+        <sys_id>9530bb1237723f68f947d4cd8a405329</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_choice_x_fitchal_fitness_activity_detection_method_camera</sys_update_name>
+    </sys_choice>
+</record_update>

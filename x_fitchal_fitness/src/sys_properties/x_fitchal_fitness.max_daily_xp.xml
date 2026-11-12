@@ -1,23 +1,16 @@
 <?xml version="1.0" encoding="UTF-8"?>
 <record_update table="sys_properties">
     <sys_properties action="INSERT_OR_UPDATE">
-        <choices/>
-        <description>Maximum XP that can be earned in a single day</description>
-        <ignore_cache>false</ignore_cache>
+        <description>Maximum XP that can be earned from activities in a single day (badge rewards excluded).</description>
         <is_private>false</is_private>
         <name>x_fitchal_fitness.max_daily_xp</name>
-        <read_roles/>
         <suffix>max_daily_xp</suffix>
-        <sys_class_name>sys_properties</sys_class_name>
-        <sys_created_by>admin</sys_created_by>
-        <sys_id>7890123456abcdef7890123456abcdef</sys_id>
-        <sys_name>x_fitchal_fitness.max_daily_xp</sys_name>
-        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
-        <sys_policy/>
-        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
-        <sys_update_name>sys_properties_x_fitchal_fitness.max_daily_xp</sys_update_name>
         <type>integer</type>
         <value>1000</value>
-        <write_roles/>
+        <sys_class_name>sys_properties</sys_class_name>
+        <sys_id>6d0c0b764108e56e8da40e4448b3c457</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_properties_x_fitchal_fitness.max_daily_xp</sys_update_name>
     </sys_properties>
 </record_update>

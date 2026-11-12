@@ -20,133 +20,74 @@ A gamified fitness tracking application for ServiceNow with XP, badges, streaks,
 - **Platform**: ServiceNow
 - **License**: MIT
 
-## 📦 Deployment Status
+## 📦 Deployment Status — v1.0.0 (deployed to dev instance, 2026-11-12)
 
-This repository uses a **staged deployment approach**, building the application block by block. Each block is independently deployable and verifiable.
+The whole app is generated from one spec (`tools/build_app.py`) into
+`x_fitchal_fitness/src/` — the path Studio imports (see `sn_source_control.properties`).
 
-| Block | Component | Status | Files | Description |
-|-------|-----------|--------|-------|-------------|
-| 01 | App Shell | ✅ READY | 2 | Application foundation and scope |
-| 02 | Tables | ✅ READY | 6 | Core database tables |
-| 03 | Fields | ✅ READY | 48 | Table columns and relationships |
-| 04 | Choices | 🔜 PENDING | 7 | Dropdown options and enums |
-| 05 | Script Includes | 🔜 PENDING | 4 | Reusable server-side code |
-| 06 | Business Rules | 🔜 PENDING | 3 | Automated record processing |
-| 07 | Scheduled Jobs | 🔜 PENDING | 2 | Background automation tasks |
-| 08 | Properties | 🔜 PENDING | 4 | Configuration settings |
-| 09 | Roles | 🔜 PENDING | 2 | Access control roles |
-| 10 | REST Definition | 🔜 PENDING | 2 | API endpoint definitions |
-| 11 | REST Operations | 🔜 PENDING | 7 | API implementation methods |
-| 12 | Widget (Sensor) | 🔜 PENDING | 1 | Sensor-based rep counter |
-| 13 | Widget (Camera) | 🔜 PENDING | 1 | AI camera pose detection |
-| 14 | Mobile Card | 🔜 PENDING | 1 | ServiceNow Mobile integration |
-| 15 | Workspace Config | 🔜 PENDING | 1 | UI Builder workspace setup |
-| 16 | Dashboard Page | 🔜 PENDING | 1 | Main dashboard interface |
-| 17 | Leaderboard Page | 🔜 PENDING | 1 | Competition rankings |
-| 18 | Challenges Page | 🔜 PENDING | 1 | Challenge management |
-| 19 | Profile Page | 🔜 PENDING | 1 | User fitness profile |
-| 20 | Seed Data | 🔜 PENDING | 0 | Sample data for testing |
+| Block | Component | Status | Records |
+|-------|-----------|--------|---------|
+| 01 | App Shell (`x_fitchal_fitness`) | ✅ Deployed | 1 |
+| 02 | Tables | ✅ Deployed | 6 |
+| 03 | Fields | ✅ Deployed | 48 |
+| 04 | Choices | ✅ Deployed | 25 (7 lists) |
+| 05 | Script Include `FitnessUtils` | ✅ Deployed | 1 |
+| 06 | Business Rules (activity) | ✅ Deployed | 4 |
+| 07 | Scheduled Jobs | ✅ Deployed | 2 |
+| 08 | Properties | ✅ Deployed | 4 |
+| 09 | Roles | ✅ Deployed | 2 (+ admin contains user) |
+| 10 | REST Definition `/api/x_fitchal_fitness/fitness` | ✅ Deployed | 1 |
+| 11 | REST Operations | ✅ Deployed | 7 |
+| 12 | Widget (Sensor rep counter) | 🔜 Next | — |
+| 13 | Widget (Camera / MoveNet) | 🔜 Next | — |
+| 14 | Mobile Card | 🔜 Pending | — |
+| 15–19 | Workspace + Dashboard/Leaderboard/Challenges/Profile pages | 🔜 Pending | — |
+| 20 | Seed Data (badges) | ✅ Deployed | 10 badges |
 
-## 🚀 Quick Start - Block 03
+### Push-up rules (v1)
 
-### Prerequisites
-- ServiceNow instance with admin access
-- Studio or App Engine Studio access
-- Git repository (for source control import)
+| Rule | Behaviour | Configured by |
+|------|-----------|---------------|
+| XP | push-up 1/rep, pull-up 2/rep, run 50/km, plank 0.3/s | `FitnessUtils.RULES` |
+| Daily cap | Activity XP per user-local day capped | `x_fitchal_fitness.max_daily_xp` (1000) |
+| Levels | `floor(total_xp / xp_per_level) + 1` | `x_fitchal_fitness.xp_per_level` (500) |
+| Anti-cheat | Reject > N reps per activity; reject sensor/camera pace faster than N ms/rep | `max_reps_per_activity` (500), `min_rep_duration_ms` (300) |
+| Edit lock | Scoring fields of a logged activity can't be edited | BR "Lock activity scoring fields" |
+| Calories | Estimated when not supplied | `FitnessUtils.RULES[*].kcal` |
+| Streaks | +1 on consecutive local days, reset after a gap; nightly reset job | BR + "Reset broken streaks" job |
+| Badges | streak (longest streak), milestone (total push-ups), achievement (activity count); XP bonus not capped | `x_fitchal_fitness_badge` rows |
+| Challenges | Progress from activities during active challenges; 1v1/team auto-complete at goal; hourly close at end date + leaderboard ranks | BR + hourly job |
 
-### Deployment Steps
+### REST API (`/api/x_fitchal_fitness/fitness`, authenticated)
 
-1. **Clone this repository**
-   ```bash
-   git clone https://github.com/djeganat/pushup_sn.git
-   cd pushup_sn
-   ```
+| Method | Path | Purpose |
+|--------|------|---------|
+| POST | `/activity` | Log an activity `{activity_type, reps_count, duration, distance, detection_method, notes}` → XP, profile, new badges |
+| GET | `/activity?limit=&activity_type=` | My recent activities |
+| GET | `/profile` | My XP, level, streaks, totals, push-ups, rank, badges, XP left today |
+| GET | `/leaderboard?limit=` | Top users by XP |
+| GET | `/badges` | All badges with my earned state |
+| GET | `/challenges?status=active` | Challenges with my participation |
+| POST | `/challenges/{id}/join` | Join (`team_name` required for team challenges) |
 
-2. **Deploy Block 03: Database Fields**
+## 🚀 Build & Deploy
 
-   **Option A: Studio Import (Recommended)**
-   - Copy `block-03-fields/src/` contents to your ServiceNow Git repo
-   - In ServiceNow Studio: File → Import From Source Control
-
-   **Option B: Manual Field Creation**
-   - Navigate to: System Definition → Tables
-   - For each table, create fields as listed in `block-03-fields/PROMPT.md`
-   - Ensure all fields use scope: `x_fitchal_fitness`
-
-3. **Validate the deployment**
-   - Open ServiceNow: System Definition → Scripts - Background
-   - Copy and run the validation script from `block-03-fields/VALIDATE.js`
-   - Verify all checks show ✅ PASS (all 48 fields created)
-
-4. **Check validation results**
-   - Expected output: All 48 fields exist across 6 tables
-   - If any test fails, review the error messages and fix issues before proceeding
-
-## 📋 Block 03 Details
-
-### What Gets Created
-- **48 Custom Database Fields** (all in `sys_dictionary/` directory)
-  - **Activity fields (10)**: user, activity_type, reps_count, duration, distance, calories_burned, xp_earned, activity_date, notes, detection_method
-  - **User Profile fields (10)**: user, total_xp, level, current_streak, longest_streak, last_activity_date, total_activities, total_calories, rank, avatar_url
-  - **Badge fields (7)**: name, description, badge_type, requirement_value, icon_url, xp_reward, rarity
-  - **User Badge fields (4)**: user, badge, earned_date, progress
-  - **Challenge fields (11)**: name, description, challenge_type, start_date, end_date, goal_type, goal_value, status, created_by, winner, winner_team
-  - **Participant fields (6)**: challenge, user, team_name, current_progress, rank, joined_date
-
-**Note**: Choice field dropdown values will be added in Block 04.
-
-### Files Structure
-```
-pushup_sn_repo/
-└── block-03-fields/
-    ├── PROMPT.md                        # Block requirements and instructions
-    ├── VALIDATE.js                      # Validation script for ServiceNow
-    └── src/
-        └── sys_dictionary/
-            ├── x_fitchal_fitness_activity_*.xml (10 files)
-            ├── x_fitchal_fitness_user_profile_*.xml (10 files)
-            ├── x_fitchal_fitness_badge_*.xml (7 files)
-            ├── x_fitchal_fitness_user_badge_*.xml (4 files)
-            ├── x_fitchal_fitness_challenge_*.xml (11 files)
-            └── x_fitchal_fitness_participant_*.xml (6 files)
+```bash
+python3 tools/build_app.py      # regenerates x_fitchal_fitness/src and dist/deploy/*.js
 ```
 
-## 🔗 Block Dependencies
+* **Studio:** Import from Source Control, path `/x_fitchal_fitness/src`.
+* **Scripted:** run `dist/deploy/02_tables.js` … `08_seed.js` in order as background scripts
+  in scope `x_fitchal_fitness` (create the app first). Each step is idempotent and keeps the repo's sys_ids.
+* **Verify:** run `tools/tests/validate_v1.js`, then `feature_tests.js` / `rest_ops_tests.js` (see `tools/tests/README.md`).
 
-```
-Block 1 (App Shell)
-    └── Block 2 (Tables)
-            └── Block 3 (Fields) ← YOU ARE HERE
-                    └── Block 4 (Choices)
-                            ├── Block 5 (Script Includes)
-                            │       ├── Block 6 (Business Rules)
-                            │       ├── Block 7 (Scheduled Jobs)
-                            │       └── Block 20 (Seed Data)
-                            ├── Block 8 (Properties)
-                            ├── Block 9 (Roles)
-                            ├── Block 10 (REST Definition)
-                            │       └── Block 11 (REST Operations)
-                            ├── Block 12 (Widget - Sensor)
-                            ├── Block 13 (Widget - Camera)
-                            ├── Block 14 (Mobile Card)
-                            └── Block 15 (Workspace Config)
-                                    ├── Block 16 (Dashboard)
-                                    ├── Block 17 (Leaderboard)
-                                    ├── Block 18 (Challenges)
-                                    └── Block 19 (Profile)
-```
+Edit scripts in `tools/app_spec/scripts/` and metadata in `tools/build_app.py` — never hand-edit generated XML.
 
-## 📝 Development Workflow
-
-For each block:
-1. ✅ Read the `PROMPT.md` file
-2. ✅ Review the files in `src/` directory
-3. ✅ Deploy to ServiceNow (Studio import or manual)
-4. ✅ Run the `VALIDATE.js` script
-5. ✅ Verify all validations pass
-6. ✅ Update this README's status table
-7. ✅ Commit changes to Git
-8. ✅ Proceed to next block
+### Known gaps in v1
+* No ACLs yet: REST/business logic run server-side, but non-admin users can't open the tables in the UI.
+* `user` / `created_by` have no `gs.getUserID()` dictionary default (rejected by the instance); the activity BR sets `user`.
+* The legacy `block-0x/` folders keep their `PROMPT.md`/`VALIDATE.js` for reference; their XML was removed
+  (invalid sys_ids) and is superseded by `x_fitchal_fitness/src`.
 
 ## 🛠️ Tech Stack
 
@@ -200,6 +141,5 @@ This project is licensed under the MIT License - see the [LICENSE](LICENSE) file
 
 ---
 
-**Status**: Block 03 Complete ✅ | Ready for Block 04 🔜
+**Status**: v1.0.0 deployed (blocks 01–11, 20) ✅ | Next: sensor & camera rep counters (blocks 12–13) 🔜
 
-**Total Files**: 58 of 105 | **Progress**: 55.2%

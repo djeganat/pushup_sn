@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_properties">
+    <sys_properties action="INSERT_OR_UPDATE">
+        <description>XP required per level. Level = floor(total_xp / xp_per_level) + 1.</description>
+        <is_private>false</is_private>
+        <name>x_fitchal_fitness.xp_per_level</name>
+        <suffix>xp_per_level</suffix>
+        <type>integer</type>
+        <value>500</value>
+        <sys_class_name>sys_properties</sys_class_name>
+        <sys_id>69ef0a6b9bc3b9f88e531178f0242eb2</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_properties_x_fitchal_fitness.xp_per_level</sys_update_name>
+    </sys_properties>
+</record_update>

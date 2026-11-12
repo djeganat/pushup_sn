@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_choice">
+    <sys_choice action="INSERT_OR_UPDATE">
+        <element>status</element>
+        <inactive>false</inactive>
+        <label>Completed</label>
+        <language>en</language>
+        <name>x_fitchal_fitness_challenge</name>
+        <sequence>30</sequence>
+        <value>completed</value>
+        <sys_class_name>sys_choice</sys_class_name>
+        <sys_id>f4f344c68eab39cee4ef7540db2d42cf</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_choice_x_fitchal_fitness_challenge_status_completed</sys_update_name>
+    </sys_choice>
+</record_update>

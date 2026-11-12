@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="x_fitchal_fitness_badge">
+    <x_fitchal_fitness_badge action="INSERT_OR_UPDATE">
+        <badge_type>achievement</badge_type>
+        <description>Log your first activity.</description>
+        <name>First Rep</name>
+        <rarity>common</rarity>
+        <requirement_value>1</requirement_value>
+        <xp_reward>10</xp_reward>
+        <sys_class_name>x_fitchal_fitness_badge</sys_class_name>
+        <sys_id>00cd163a2ac5559fe78c419d146658ad</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>x_fitchal_fitness_badge_first_rep</sys_update_name>
+    </x_fitchal_fitness_badge>
+</record_update>

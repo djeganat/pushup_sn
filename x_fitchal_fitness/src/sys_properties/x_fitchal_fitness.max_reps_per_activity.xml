@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_properties">
+    <sys_properties action="INSERT_OR_UPDATE">
+        <description>Maximum reps accepted in a single push-up/pull-up activity (anti-cheat).</description>
+        <is_private>false</is_private>
+        <name>x_fitchal_fitness.max_reps_per_activity</name>
+        <suffix>max_reps_per_activity</suffix>
+        <type>integer</type>
+        <value>500</value>
+        <sys_class_name>sys_properties</sys_class_name>
+        <sys_id>5f24e26dad9865de2d722b46c9b82f32</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_properties_x_fitchal_fitness.max_reps_per_activity</sys_update_name>
+    </sys_properties>
+</record_update>

@@ -1,0 +1,46 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<record_update table="sys_ws_operation">
+    <sys_ws_operation action="INSERT_OR_UPDATE">
+        <active>true</active>
+        <consumes>application/json</consumes>
+        <http_method>GET</http_method>
+        <name>List badges</name>
+        <operation_script><![CDATA[(function process(/*RESTAPIRequest*/ request, /*RESTAPIResponse*/ response) {
+    var owned = {};
+    var ub = new GlideRecord(FitnessUtils.T.USER_BADGE);
+    ub.addQuery('user', gs.getUserID());
+    ub.query();
+    while (ub.next()) owned[ub.getValue('badge')] = ub.getValue('earned_date');
+    var out = [];
+    var b = new GlideRecord(FitnessUtils.T.BADGE);
+    b.orderBy('badge_type');
+    b.orderBy('requirement_value');
+    b.query();
+    while (b.next()) {
+        out.push({
+            sys_id: b.getUniqueValue(),
+            name: b.getValue('name'),
+            description: b.getValue('description'),
+            badge_type: b.getValue('badge_type'),
+            requirement_value: parseInt(b.getValue('requirement_value'), 10) || 0,
+            xp_reward: parseInt(b.getValue('xp_reward'), 10) || 0,
+            rarity: b.getValue('rarity'),
+            earned: !!owned[b.getUniqueValue()],
+            earned_date: owned[b.getUniqueValue()] || null
+        });
+    }
+    return { badges: out };
+})(request, response);
+]]></operation_script>
+        <produces>application/json</produces>
+        <relative_path>/badges</relative_path>
+        <requires_acl_authorization>false</requires_acl_authorization>
+        <requires_authentication>true</requires_authentication>
+        <web_service_definition>ec3bcfcdaf33e200087102595d9908b6</web_service_definition>
+        <sys_class_name>sys_ws_operation</sys_class_name>
+        <sys_id>c6a9ab970e026e0e58f4892329643d1c</sys_id>
+        <sys_package display_value="FitChallenge" source="x_fitchal_fitness">a1b2c3d4e5f6789012345678abcdef01</sys_package>
+        <sys_scope display_value="FitChallenge">a1b2c3d4e5f6789012345678abcdef01</sys_scope>
+        <sys_update_name>sys_ws_operation_rest_get_badges</sys_update_name>
+    </sys_ws_operation>
+</record_update>
