@@ -31,3 +31,19 @@ widgets/aiux-studio-preview/
 .lux-lab/
 .env
 .types/
+
+# AIUX app
+*.tsbuildinfo
+dist-metadata/
+.aiux-runtime/
+target/
+.now/
+.agents/cache/
+*.local
+pages/.widget-sandbox/
+pages/.widget-sandbox-bare/
+# >>> aiux widget sandbox (auto-managed)
+src/lux/pages/.widget-sandbox
+src/lux/pages/.widget-sandbox-bare
+# <<< aiux widget sandbox
+src/lux/widgets/aiux-studio-preview/

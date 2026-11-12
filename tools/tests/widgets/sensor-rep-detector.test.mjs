@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {TouchRepDetector, MotionRepDetector, MOTION_SENSITIVITY} from '../../../widgets/aiux-pushup-sensor-counter/rep-detector.js';
+import {TouchRepDetector, MotionRepDetector, MOTION_SENSITIVITY} from '../../../src/lux/widgets/aiux-pushup-sensor-counter/rep-detector.js';
 
 const G = 9.81, HZ = 60, DT = 1000 / HZ;
 // Deterministic PRNG so noise is reproducible.

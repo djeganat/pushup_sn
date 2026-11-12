@@ -1,0 +1,19 @@
+{
+  "name": "FitChallenge",
+  "projectId": "x_2167777_fitchal_fitchallenge",
+  "basename": "fitchallenge",
+  "srcDir": "src/lux",
+  "landing": "/home",
+  "createAnalyticsApp": true,
+  "development": {
+    "token": ""
+  },
+  "build": {
+    "exclude": [
+      "**/*.test.js",
+      "**/*.test.mjs",
+      "**/test/**",
+      "**/aiux-studio-preview/**"
+    ]
+  }
+}

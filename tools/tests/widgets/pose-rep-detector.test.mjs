@@ -1,6 +1,6 @@
 import test from 'node:test';
 import assert from 'node:assert/strict';
-import {PoseRepDetector, angleAt, KP} from '../../../widgets/aiux-pushup-camera-counter/pose-rep-detector.js';
+import {PoseRepDetector, angleAt, KP} from '../../../src/lux/widgets/aiux-pushup-camera-counter/pose-rep-detector.js';
 
 const deg = d => (d * Math.PI) / 180;
 /** Side-view pose: shoulder at origin; elbow angle `elbow`; body angle (shoulder-hip-knee) `body`. */

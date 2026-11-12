@@ -1,8 +1,8 @@
 import {html, css, nothing} from 'lit';
 import {customElement} from 'lit/decorators.js';
-import {AIUXElement} from '@servicenow/aiux-components-core';
-import {i18n} from '@servicenow/aiux-services';
-import {icon} from '@servicenow/aiux-directive-icon';
+import {AIUXElement} from '@servicenow/aiux/aiux-components-core';
+import {i18n} from '@servicenow/aiux/aiux-services';
+import {icon} from '@servicenow/aiux/aiux-directive-icon';
 import {resolveLocale, formatNumber, formatKcal} from './fitchallenge-api.js';
 
 /**

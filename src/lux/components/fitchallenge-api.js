@@ -1,6 +1,6 @@
 import {isServer} from 'lit';
-import {aiuxFetch} from '@servicenow/aiux-components-core';
-import {i18n} from '@servicenow/aiux-services';
+import {aiuxFetch} from '@servicenow/aiux/aiux-components-core';
+import {i18n} from '@servicenow/aiux/aiux-services';
 
 /** FitChallenge Scripted REST API (x_fitchal_fitness), deployed in v1. */
 export const ACTIVITY_ENDPOINT = '/api/x_fitchal_fitness/fitness/activity';

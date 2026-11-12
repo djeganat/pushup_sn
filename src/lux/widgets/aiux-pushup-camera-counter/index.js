@@ -1,12 +1,12 @@
 import {html, css, nothing, isServer} from 'lit';
 import {customElement} from 'lit/decorators.js';
 import {classMap} from 'lit/directives/class-map.js';
-import {AIUXWidgetElement, decorators, getLogger} from '@servicenow/aiux-components-core';
-import {i18n} from '@servicenow/aiux-services';
-import {icon} from '@servicenow/aiux-directive-icon';
-import '@servicenow/aiux-timer';
-import '@servicenow/aiux-components-alert';
-import '@servicenow/aiux-components-loader';
+import {AIUXWidgetElement, decorators, getLogger} from '@servicenow/aiux/aiux-components-core';
+import {i18n} from '@servicenow/aiux/aiux-services';
+import {icon} from '@servicenow/aiux/aiux-directive-icon';
+import '@servicenow/aiux/aiux-timer';
+import '@servicenow/aiux/aiux-components-alert';
+import '@servicenow/aiux/aiux-components-loader';
 import {PoseRepDetector, KP} from './pose-rep-detector.js';
 import {getMoveNetDetector} from './movenet-loader.js';
 import {DETECTION, saveErrorMessage, logPushups, previewResult, keepScreenOn, durationSeconds, resolveLocale, formatNumber} from '../../components/fitchallenge-api.js';
